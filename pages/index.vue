@@ -4,6 +4,9 @@ const { status, data, getCsrfToken, getProviders, getSession } = useAuth();
 const session = await getSession();
 const providers = await getProviders();
 const csrfToken = await getCsrfToken();
+
+const headers = useRequestHeaders(["cookie"]) as HeadersInit;
+const { data: token } = await useFetch("/api/token", { headers });
 </script>
 
 <template>
@@ -18,5 +21,7 @@ const csrfToken = await getCsrfToken();
     {{ providers }}
     <br />
     csrfToken: {{ csrfToken }}
+    <hr />
+    <div>token: {{ token || "no token present, are you logged in?" }}</div>
   </div>
 </template>

@@ -1,26 +1,33 @@
 <script setup lang="ts">
 const { signIn } = useAuth();
 
+// 預設帳密
 const login = ref("winniechang@mirrormedia.mg");
 const password = ref("Winnie6622");
 
-const googleLogin = () => {
-  signIn("google", { callbackUrl: "/private" });
+// 谷歌登入
+const googleLogin = async () => {
+  const google = await signIn("google", { callbackUrl: "/private" });
+  console.log(google);
 };
 
+// 一般帳密登入
 const passwordLogin = async (e: Event) => {
   e.preventDefault();
+
+  // 資料輸入錯誤顯示錯誤訊息，資料正確則跳轉至private頁
   const { error, url }: any = await signIn("credentials", {
     login: login.value,
     password: password.value,
     redirect: false,
     callbackUrl: "/private",
   });
-};
 
-const loginAPI = async () => {
-  const b = await $fetch("/api/login");
-  console.log(b);
+  if (error) {
+    console.log("wrong ID or password");
+  } else {
+    return navigateTo(url, { external: true });
+  }
 };
 </script>
 
@@ -36,6 +43,5 @@ const loginAPI = async () => {
     <br />
 
     <button @click="googleLogin">Google登入</button>
-    <button @click="loginAPI">123</button>
   </div>
 </template>

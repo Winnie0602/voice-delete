@@ -4,9 +4,18 @@ import GoogleProvider from 'next-auth/providers/google'
 
 const runtimeConfig = useRuntimeConfig()
 
+type APIResult = {
+  token_type?: string,
+  expires_in? : string
+  access_token? : string
+  refresh_token? : string
+  result?: "error",
+  message?: "Unauthorized"
+}
+
 // 打登入API
 const loginAPI = async (credentials: any) => {
-  return await $fetch('https://api-v2-test.mirrorvoice.com.tw/oauth/requestToken', {
+  const res: APIResult = await $fetch(`${process.env.APIURL}/oauth/requestToken`, {
     query: {
       'client-id': process.env.PASSWORD_CLIENT_ID,
       'client-secret': process.env.PASSWORD_CLIENT_SECRET,
@@ -14,6 +23,8 @@ const loginAPI = async (credentials: any) => {
       password: credentials.password
     }
   })
+
+  return res
 }
 
 export default NuxtAuthHandler({
@@ -35,11 +46,15 @@ export default NuxtAuthHandler({
           async authorize(credentials: any) {
             try {
 
+              // 打登入API
               const res = await loginAPI(credentials)
 
-              console.log(res)
-
-              return {'access_token': res.access_token, "refresh_token": res.refresh_token};
+              // 判斷api回傳失敗or成功
+              if (res.access_token) {
+                return {'access_token': res.access_token, "refresh_token": res.refresh_token, "1230": 123}
+              } else {
+                throw new Error('錯誤的帳密')
+              }
 
             } catch (error) {
               console.log(error)
